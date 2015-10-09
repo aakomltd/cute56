@@ -28,6 +28,10 @@ HEADERS += \
 DSP_SOURCES = \
 	calc.asm
 
+images.path    = $${DESTDIR}
+images.files   += C:\Users\nerve\Atari\gfx\bluz3.bmp
+INSTALLS       += images
+
 win32 {
 	ASM56000 = C:\Program Files (x86)\Motorola\DSP\dsp\bin\asm56000.exe
 	CLDLOD	 = C:\Program Files (x86)\Motorola\DSP\dsp\bin\cldlod.exe
@@ -51,3 +55,6 @@ QMAKE_EXTRA_COMPILERS += asm56000
 
 OTHER_FILES += \
     calc.asm
+
+DISTFILES += \
+    ../../../Atari/gfx/bluz3.bmp

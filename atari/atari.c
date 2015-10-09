@@ -1,6 +1,8 @@
 #include "atari_internal.h"
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <dirent.h>
 #ifndef HOST
 #include <mint/osbind.h>
 #include <mint/falcon.h>
@@ -18,9 +20,17 @@ static volatile int isVblSet;
 static Bitmap screen = { 320, 240, 16, BitmapTypeHighColor, NULL, { 0 } };
 static HighColor col = 0x0000;
 
+int load_bmp_texture(void* destination, const char* filename, int no_bytes, int offset, int copies);
+
 #ifdef HOST
 int32_t	Main( const DspWrapperInfo* pDspWrapperInfo )
 {
+    int* texture = malloc(131072*2);
+    if(	load_bmp_texture(texture, "bluz3.bmp", 131072, 70,1) == 0 )
+    {
+        return EXIT_FAILURE;
+    }
+
 	setDspWrapper( pDspWrapperInfo );
 #else
 int main( int argc, char* argv[] )
@@ -29,6 +39,9 @@ int main( int argc, char* argv[] )
 	{
 		return EXIT_FAILURE;
 	}
+
+
+
 
 	int32_t oldSSP = Super( 0L );
 
@@ -70,23 +83,44 @@ int main( int argc, char* argv[] )
 	/*
 	 * Main demo loop. This is where you want to place your code.
 	 */
-	for( ; ; )
-	{
+    uint16_t t = 0;
+
+    for( ; ; )
+    {
+
 		if( isVblSet )
 		{
 			// race condition as hell for HOST
 			isVblSet = 0;
 
-			HighColor* p = screen.pixels.pHc;
 			// wait for vbl
-			for( size_t i = 0; i < screenSize / 2; ++i )
-			{
-				*p++ = col;
-			}
+            col = 0;
 
-			dspSendUnsignedWord( col );
-			// do the math :)
-			col = dspReceiveWord();
+            t+= 1;
+            dspSendUnsignedWord( t );
+            HighColor* p = screen.pixels.pHc;
+            HighColor* p2 = p+320;
+            uint16_t* tx = (uint16_t*)texture;
+
+            for(size_t i = 0; i < 240; i+=2)
+            {
+                for( size_t i = 0; i < 320; i+=2 )
+                {
+                    col = dspReceiveWord();
+                    HighColor pixel = tx[col];
+
+                    *p++ = pixel;
+                    *p++ = pixel;
+                    *p2++ = pixel;
+                    *p2++ = pixel;
+
+                }
+                p += 320;
+                p2 += 320;
+
+            }
+
+
 		}
 
 #ifndef HOST
@@ -124,4 +158,42 @@ void TimerVblCallback( void )
 Bitmap* ScreenGetPhysical( void )
 {
 	return &screen;
+}
+
+int load_bmp_texture(void* destination, const char* filename, int no_bytes, int offset, int copies)
+{
+
+    char* dest = (char*)destination;
+    FILE *file = fopen(filename, "rb");
+    if(file == NULL)
+        return 0;
+
+    fseek(file, offset, SEEK_SET);
+    fread(dest, 1, no_bytes, file);
+    fclose(file);
+
+    for(int i = 0; i<no_bytes; i+=2)
+    {
+        char c1 = dest[i];
+        char c2 = dest[i+1];
+#ifdef HOST
+        dest[i] = c1;
+        dest[i+1] = c2;
+#else
+        dest[i] = c2;
+        dest[i+1] = c1;
+#endif
+        for(int c = 1; c < copies; c++)
+        {
+#ifdef HOST
+        dest[i+offset] = c1;
+        dest[i+1+offset] = c2;
+#else
+        dest[i+offset] = c2;
+        dest[i+1+offset] = c1;
+#endif
+        }
+    }
+
+    return 1;
 }
