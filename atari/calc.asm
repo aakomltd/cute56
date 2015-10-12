@@ -16,192 +16,127 @@ whost		MACRO	src
 start:
                 ori     #04,OMR     ;enable data roms
 
-                rhost	x0
+                rhost	a		;a : t
+		;move	#>128,a
+		move	#>$ff,x0
+		move	#time,r0
+		and	x0,a
+		move	a,p:(r0)
 
-                move    #time,r0
-                nop
-                move    x0,p:(r0)
+		move	#rowU,r2
+		move	#rowV,r3
+                move	#duCol,r4
+		move	#dvCol,r5
+		move    #duRow,r6
+		move	#dvRow,r7
 
-                move    #xcount,r5
-                clr     a
-                nop
-                move    a,p:(r5)
+		move	#>1,x0	;centre u and v
+		nop
+		move	x0,p:(r2)	;store centred u
+		move	x0,p:(r3)	;store centred v
 
-                move    #ycount,r6
-                move    #0,a
-                nop
-                move    a,p:(r6)
+		move    #>$100,r1	;r1 : sin
+                move    #>$ff,m1	;m1 : sin wraparound
+		move	a,n1		;n1 : t wrapped
+		nop
+		move    y:(r1+n1),y0	;sin(t) for duCol (and dvRow)
+		move	#>1<<(8-1),y1	;the factor 256
+		nop
+		mpy	y1,y0,b		;scale duCol to the range [-128..127]
+		move	#>128,x1
+		move	b,a
+		nop
+		add	x1,b
 
-                clr     a
-                clr     b
-                nop
-                move    a,y0
-                move    a,x0
+		move    b,p:(r4)	;store duCol
+		neg	a		;dvRow = -duCol
+		nop
+		add	x1,a
+		nop
+		move	a,p:(r7)	;store dvRow
 
+		move	#time,r0
+		nop
+		move	p:(r0),n1	;n1 : t wrapped
+		move    #>$140,r1	;r1 : sin
+                move    #>$ff,m1	;m1 : sin wraparound
+		nop
+		move	y:(r1+n1),y0	;y1: cos(t)
+		move	#>1<<(8-1),y1	;the factor 256
+		nop
+		mpy	y1,y0,b		;scale dvCol=dvRow to the range [-128..127]
+		move	#>128,x1
+		nop
+		add	x1,b
+		nop
 
-_start_line
-                do      #120,_end_screen
-                nop
-
-                move    y0,b
-                move    #>256,y1
-                move    #>$ff00,x0
-                nop
-                add     y1,b
-                nop
-                and     x0,b
-                nop
-                move    b,y0
-                nop
-
-
-                clr     a
-                clr     b
-
-                do      #160,_end_line
-                nop
-
-                move    #>1,x1
-                nop
-                add     x1,b
-                nop
-                move    b,a
-                nop
-                add     y0,a
-                nop
-
-
-                whost	a
-                nop
-
-_end_line
-                nop
-_end_screen
-                nop
-
-                jmp	<start
-
-start2:
-                ori     #04,OMR     ;enable data roms
-
-                rhost	x0
-
-                move    #time,r0
-                nop
-                move    x0,p:(r0)
-
-                move    #xcount,r5
-                clr     a
-                nop
-                move    a,p:(r5)
-
-                move    #ycount,r6
-                move    #0,a
-                nop
-                move    a,p:(r6)
-
+		move	b,p:(r5)	;store dvCol = cos(t)
+		move	b,p:(r6)	;store duRow = cos(t)
+		nop
 
 _start_line
                 do      #120,_end_screen
-                nop
 
+		move	p:(r2),a	;a : u = rowU
+		move	p:(r3),b	;b : v = rowV
+		nop
 
-                move    #0,x0
-                move    #0,n2
+		do      #160,_end_line
 
-                move    #xcount,r5
-                nop
-                move    p:(r5),a
-
-                move    #>1,x1
-                move    #$3000,x0
-                move    #>$ff,y1
-                nop
-                add     x,a
-                nop
-                and     y1,a
-                nop
-                move    a,n3
-
-
-                move    #ycount,r6
-                move    #$3000,y0
-                move    #>8,y1
-                move    p:(r6),b
-                nop
-                add     y,b
-                nop
-                move    b,p:(r6)
-
-                move    #>1<<(8-1),y0
-                move    #time,r0
-                nop
-                move    p:(r0),x0
-                move    #>0,a
-                nop
-                add     x0,a
-                nop
-                add     b,a
-                move    a,y1
-                move    #0,x1
-                move    #$100,r3
-                move    #$ff,m3
-                nop
-                move    y:(r3+n3),x0
-                nop
-                mpy     x0,y0,b
-                add     y1,b
-                nop
-                move    b,n2
-                nop
-                rep     #4
-                asr 	b
-
-                do      #160,_end_line
-                nop
-
-                move    n2,a
-
-                move    b,x1
-                move    #>$ff,y1
-                nop
-                add     x1,a
-                nop
-                and     y1,a
-                nop
-                move    a,n2
-
-                move    #$100,r2
-                move    #$ff,m2     ;sine table wraparound
-
-                move    #>1<<(5-1),y0
-                move    #>16,y1
-                move    #0,x1
-                move    y:(r2+n2),x0
-                nop
-                mpy     x0,y0,a
-                add     y1,a
-                nop
+		move	a,x1
+		move	b,y1
+		rep	#8
+		asl	b
+		nop
+		add	b,a
+		nop
                 whost	a
-                rep     #4
-                nop
+		nop
+		move	x1,a
+		move	y1,b
+
+		move	p:(r6),x0	;x0 : duRow
+		move	p:(r7),y0	;y0 : dvRow
+		move	#>$ff,x1
+		add	x0,a
+		add	y0,b
+		and	x1,a
+		and	x1,b
+
 
 _end_line
-                nop
+		move	p:(r2),a	;a : u = rowU
+		move	p:(r3),b	;b : v = rowV
+		move	#>$ff,x1
+
+		move	p:(r4),x0	;x0 : duCol
+		move	p:(r5),y0	;y0 : dvCol
+
+		add	x0,a
+		add	y0,b
+
+		move	a,p:(r2)
+		move	b,p:(r3)
+
 _end_screen
+                nop
 
                 jmp	<start
 
 
 time    ds  1
-temp    ds  1
-sin     ds  1
-cos     ds  1
-alpha   ds  1
-beta    ds  1
-gamma   dc  0
-xcount  dc  0
-ycount  dc  0
-sinx    ds  1
-siny    ds  1
+sint    ds  1
+cost    ds  1
+
+u	ds  1
+v	ds  1
+rowU	ds  1
+rowV	ds  1
+duCol	ds  1
+dvCol	ds  1
+duRow	ds  1
+dvRow	ds  1
+
+startU	dc  127
+startV	dc  127
 
