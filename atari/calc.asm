@@ -18,7 +18,7 @@ start:
 
                 rhost	a		;a : t
 		;move	#>128,a
-		move	#>$ff,x0
+		move	#>255,x0
 		move	#time,r0
 		and	x0,a
 		move	a,p:(r0)
@@ -30,7 +30,7 @@ start:
 		move    #duRow,r6
 		move	#dvRow,r7
 
-		move	#>1,x0	;centre u and v
+		move	#>128,x0	;centre u and v
 		nop
 		move	x0,p:(r2)	;store centred u
 		move	x0,p:(r3)	;store centred v
@@ -40,7 +40,7 @@ start:
 		move	a,n1		;n1 : t wrapped
 		nop
 		move    y:(r1+n1),y0	;sin(t) for duCol (and dvRow)
-		move	#>1<<(8-1),y1	;the factor 256
+		move	#>1<<(3-1),y1	;the factor 256
 		nop
 		mpy	y1,y0,b		;scale duCol to the range [-128..127]
 		move	#>128,x1
@@ -62,7 +62,7 @@ start:
                 move    #>$ff,m1	;m1 : sin wraparound
 		nop
 		move	y:(r1+n1),y0	;y1: cos(t)
-		move	#>1<<(8-1),y1	;the factor 256
+		move	#>1<<(3-1),y1	;the factor 256
 		nop
 		mpy	y1,y0,b		;scale dvCol=dvRow to the range [-128..127]
 		move	#>128,x1
@@ -85,6 +85,7 @@ _start_line
 
 		move	a,x1
 		move	b,y1
+
 		rep	#8
 		asl	b
 		nop
@@ -110,7 +111,7 @@ _end_line
 		move	#>$ff,x1
 
 		move	p:(r4),x0	;x0 : duCol
-		move	p:(r5),y0	;y0 : dvCol
+		move	p:(r5),y0	;y0 : dvCol		
 
 		add	x0,a
 		add	y0,b
