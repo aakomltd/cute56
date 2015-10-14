@@ -83,7 +83,7 @@ start:
 		nop
 		move    y:(r1+n1),y0	;sin(t) for duCol (and dvRow)
 ;		move	#>1<<(3-1),y1	;scale factor
-		move	#>6,y1
+		move	#>3,y1
 		nop
 		mpy	y1,y0,b		;scale duCol to the range [-128..127]
 		move	#>128,x1
@@ -110,7 +110,7 @@ start:
 		nop
 		move	y:(r1+n1),y0	;y1: cos(t)
 		;move	#>1<<(3-1),y1	;scale factor
-		move	#>3,y1
+		move	#>5,y1
 		nop
 		mpy	y1,y0,b		;scale dvCol=dvRow to the range [-128..127]
 		move	#>128,x1
@@ -129,19 +129,19 @@ _start_line
 
 		move	p:(r2),a	;a : u = rowU
 		move	p:(r3),b	;b : v = rowV
+		nop
+		add	b,a
 
 		move	p:(r6),x0	;x0 : duRow
 		move	p:(r7),y0	;y0 : dvRow
+		move	x0,b
+		nop
+		add	y0,b
 
 		do      #160,_end_line
 
-		move	b,r1
-		add	a,b
-                whost	b
-		move	r1,b
-
-		add	x0,a
-		add	y0,a
+		jclr	#1,X:<<$ffe9,*
+		add	b,a	a,X:<<$ffeb
 
 _end_line
 		move	p:(r2),a	;a : u = rowU

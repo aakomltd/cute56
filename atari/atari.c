@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <string.h>
 #ifndef HOST
 #include <mint/osbind.h>
 #include <mint/falcon.h>
@@ -25,8 +26,8 @@ int load_bmp_texture(void* destination, const char* filename, int no_bytes, int 
 #ifdef HOST
 int32_t	Main( const DspWrapperInfo* pDspWrapperInfo )
 {
-    int* texture = malloc(131072*2);
-    if(	load_bmp_texture(texture, "bluz3.bmp", 131072, 70,1) == 0 )
+    uint16_t* texture = (uint16_t*)malloc(256*256*4);
+    if(	load_bmp_texture(texture, "bluz3.bmp", 131072, 70,2) == 0 )
     {
         return EXIT_FAILURE;
     }
@@ -100,7 +101,7 @@ int main( int argc, char* argv[] )
             dspSendUnsignedWord( t );
             HighColor* p = screen.pixels.pHc;
             HighColor* p2 = p+320;
-            uint16_t* tx = (uint16_t*)texture;
+            uint16_t* tx = (uint16_t*)texture+256*256;
 
             for(size_t i = 0; i < 240; i+=2)
             {
@@ -160,7 +161,7 @@ Bitmap* ScreenGetPhysical( void )
 	return &screen;
 }
 
-int load_bmp_texture(void* destination, const char* filename, int no_bytes, int offset, int copies)
+int load_bmp_texture(void* destination, const char* filename, const int no_bytes, const int offset, const int copies)
 {
 
     char* dest = (char*)destination;
@@ -186,11 +187,11 @@ int load_bmp_texture(void* destination, const char* filename, int no_bytes, int 
         for(int c = 1; c < copies; c++)
         {
 #ifdef HOST
-        dest[i+offset] = c1;
-        dest[i+1+offset] = c2;
+        dest[i+(no_bytes*c)] = c1;
+        dest[i+1+(no_bytes*c)] = c2;
 #else
-        dest[i+offset] = c2;
-        dest[i+1+offset] = c1;
+        dest[i+(no_bytes*c)] = c2;
+        dest[i+1+(no_bytes*c)] = c1;
 #endif
         }
     }
