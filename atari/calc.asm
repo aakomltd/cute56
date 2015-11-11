@@ -32,38 +32,13 @@ start:
 		move	#time,r0
 		and	x0,a
 		move	a,p:(r0)
-		;move	#>3,x0
-		;nop
-		;and	x0,b
-		;rep	#3
-		;lsr	a
-		;nop
-		;move	a,x1
+
 
 		move	#1,x0
 		move    #>$100,r1	;r1 : sin
                 move    #>$ff,m1	;m1 : sin wraparound
 		move	a,n1		;n1 : t wrapped
 		nop
-		;move    y:(r1+n1),b
-		;nop
-		;add	x0,a
-		;nop
-		;move	a,n1
-		;nop
-		;move    y:(r1+n1),a
-		;nop
-		;move	a,x0
-		;sub	a,b
-		;nop
-		;move	b,y0
-		;mpy	x1,y0,b
-		;nop
-		;add	y0,b
-		;nop
-		;move	b,a
-
-
 
 		move	#rowU,r2
 		move	#rowV,r3
@@ -72,55 +47,29 @@ start:
 		move    #duRow,r6
 		move	#dvRow,r7
 
-		move	#>32,x0	;centre u and v
+		move	#-32,x0	;centre u and v
+		move	#-127,x1
 		nop
 		move	x0,p:(r2)	;store centred u
-		move	x0,p:(r3)	;store centred v
+		move	x1,p:(r3)	;store centred v
 
-		move    #>$100,r1	;r1 : sin
-                move    #>$ff,m1	;m1 : sin wraparound
-		move	a,n1		;n1 : t wrapped
-		nop
-		move    y:(r1+n1),y0	;sin(t) for duCol (and dvRow)
-;		move	#>1<<(3-1),y1	;scale factor
-		move	#>3,y1
-		nop
-		mpy	y1,y0,b		;scale duCol to the range [-128..127]
-		move	#>128,x1
-		move	b,a
-		nop
-		add	x1,b
+		rhost	b
 		nop
 		move    b,p:(r4)	;store duCol
 
-		neg	a		;dvRow = -duCol
-		nop
-		add	x1,a
-		nop
+		neg	b		;dvRow = -duCol
 		rep	#8
-		lsl	a
+		asl	b
 		nop
-		move	a,p:(r7)	;store dvRow
+		move	b,p:(r7)	;store dvRow
 
-		move	#time,r0
-		nop
-		move	p:(r0),n1	;n1 : t wrapped
-		move    #>$140,r1	;r1 : sin
-                move    #>$ff,m1	;m1 : sin wraparound
-		nop
-		move	y:(r1+n1),y0	;y1: cos(t)
-		;move	#>1<<(3-1),y1	;scale factor
-		move	#>5,y1
-		nop
-		mpy	y1,y0,b		;scale dvCol=dvRow to the range [-128..127]
-		move	#>128,x1
-		nop
-		add	x1,b
+
+		rhost	b
 		nop
 		move	b,p:(r6)	;store duRow = cos(t)
 		nop
 		rep	#8
-		lsl	b
+		asl	b
 		move	b,p:(r5)	;store dvCol = cos(t)
 		nop
 
@@ -152,7 +101,10 @@ _end_line
 		move	p:(r5),y0	;y0 : dvCol
 
 		add	x0,a
+		add	x0,a
 		add	y0,b
+		add	y0,b
+
 
 		move	a,p:(r2)
 		move	b,p:(r3)
