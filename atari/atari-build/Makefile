@@ -1,6 +1,7 @@
 TARGET	= atari.tos
 
-CC	= m68k-atari-mint-gcc
+#CC	= m68k-atari-mint-gcc
+CC	= vbcc
 AS	= vasm
 DSPAS	= asm56k
 
