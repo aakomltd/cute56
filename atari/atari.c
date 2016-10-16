@@ -28,7 +28,7 @@ int load_bmp_texture(void* destination, const char* filename, int no_bytes, int 
 int32_t	Main( const DspWrapperInfo* pDspWrapperInfo )
 {
     uint16_t* texture = (uint16_t*)malloc(256*256*4);
-    if(	load_bmp_texture(texture, "oran2.bmp", 131072, 70,2) == 0 )
+    if(	load_bmp_texture(texture, "oran1.bmp", 131072, 70,2) == 0 )
     {
         return EXIT_FAILURE;
     }
@@ -102,11 +102,11 @@ int main( int argc, char* argv[] )
 
             t+= 1;
             dspSendUnsignedWord( t );
-            t2 += 0.8973213;
-            t3 += 0.73134213;
-            int32_t sinVal = 1+((int32_t)((sin(t3)*8.0)+(sin(t2)*1.6))/2.0);
+            t2 += 0.1071973213;
+            t3 += 0.1053134213;
+            int32_t sinVal = ((int32_t)((sin(t2)*16.0)));
             dspSendLong(sinVal);
-            int32_t cosVal = 1+((int32_t)((cos(t3)*8.0)+(cos(t2)*1.6))/2.0);
+            int32_t cosVal = ((int32_t)((cos(t2)*16.0)));
             dspSendLong(cosVal);
 
             HighColor* p = screen.pixels.pHc;

@@ -26,12 +26,12 @@ mshl		MACRO	s,m,n,acc
 start:
                 ori     #04,OMR     ;enable data roms
 
-                rhost	a		;a : t		
-		move	#>255,x0
-		move	a,b
-		move	#time,r0
-		and	x0,a
-		move	a,p:(r0)
+                rhost	a		;a : t
+        	;move	#>255,x0
+		;move	a,b
+;		move	#time,r0
+		;and	x0,a
+		;move	a,p:(r0)
 
 
 		move	#1,x0
@@ -100,10 +100,12 @@ _end_line
 		move	p:(r4),x0	;x0 : duCol
 		move	p:(r5),y0	;y0 : dvCol
 
+		asr	x0
+
 		add	x0,a
-		add	x0,a
+;		add	x0,a
 		add	y0,b
-		add	y0,b
+;		add	y0,b
 
 
 		move	a,p:(r2)
